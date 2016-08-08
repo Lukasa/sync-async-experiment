@@ -98,7 +98,6 @@ def run(request, data_handler, sock):
 
     This does not yet handle:
 
-    - streaming the response body
     - 100 continue (not clear we should handle that at all)
     - HTTP/2, which has some concerns about this interface
     - plenty of error cases!
