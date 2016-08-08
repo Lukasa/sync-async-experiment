@@ -22,6 +22,8 @@ Unanswered questions:
 - What is the type of a response body?
 - What is the expected interface of a response body?
 """
+
+
 class Request(object):
     """
     This is a skeleton semantic representation of a request. We'll flesh it
@@ -29,8 +31,8 @@ class Request(object):
     """
     def __init__(self):
         self.method = b'GET'
-        self.host = b'example.com'
-        self.path = b'/'
+        self.host = b'http2bin.org'
+        self.path = b'/get'
         self.headers = [(b'user-agent', b'sync-async-experiment/0.0.0')]
         self.body = b''
 
