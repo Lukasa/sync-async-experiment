@@ -13,8 +13,19 @@ def do_something_sync(request):
     return sync.run(request, data_handler, s)
 
 
+def post_data():
+    yield b"key1=val1"
+    yield b"&"
+    yield b"key2=val2"
+
+
 def main():
     req = data_types.Request()
+    req.method = b'POST'
+    req.path = b'/post'
+    req.headers.append((b'Content-Type', b'application/x-www-form-urlencoded'))
+    req.headers.append((b'Transfer-Encoding', b'chunked'))
+    req.body = post_data()
     resp = do_something_sync(req)
     print(resp.code)
     print(resp.headers)

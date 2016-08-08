@@ -36,8 +36,13 @@ class DataHandler(object):
         yield request_bytes
 
         if request.body:
-            # TODO: Request bodies.
-            raise RuntimeError("Bodies not supported yet.")
+            for chunk in request.body:
+                data_event = h11.Data(data=chunk)
+                data_bytes = self._conn.send(data_event)
+                yield data_bytes
+            eom_event = h11.EndOfMessage()
+            eom_bytes = self._conn.send(eom_event)
+            yield eom_bytes
 
         return
 
