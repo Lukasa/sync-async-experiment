@@ -22,7 +22,7 @@ class DataHandler(object):
 
     def request_to_bytes(self, request):
         """
-        Converts a request object to a generator of bytes.
+        Converts a request object to bytes.
         """
         request_headers = request.headers
         request_headers.append((b'Host', request.host))
@@ -33,18 +33,26 @@ class DataHandler(object):
             headers=request_headers,
         )
         request_bytes = self._conn.send(h11_request)
-        yield request_bytes
+        return request_bytes
 
-        if request.body:
-            for chunk in request.body:
-                data_event = h11.Data(data=chunk)
-                data_bytes = self._conn.send(data_event)
-                yield data_bytes
-            eom_event = h11.EndOfMessage()
-            eom_bytes = self._conn.send(eom_event)
-            yield eom_bytes
+    def body_chunk_to_bytes(self, chunk):
+        """
+        This method converts a request body chunk into the appropriate network
+        bytes.
 
-        return
+        This needs to be called once for each chunk of body.
+        """
+        data_event = h11.Data(data=chunk)
+        data_bytes = self._conn.send(data_event)
+        return data_bytes
+
+    def end_of_body(self):
+        """
+        This method marks the end of the body. It should be called once all the
+        body data has been sent (if there is any), and may potentially emit
+        more bytes.
+        """
+        return self._conn.send(h11.EndOfMessage())
 
     def receive_bytes(self, data):
         """

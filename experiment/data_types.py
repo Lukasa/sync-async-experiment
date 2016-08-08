@@ -34,7 +34,7 @@ class Request(object):
         self.host = b'http2bin.org'
         self.path = b'/get'
         self.headers = [(b'user-agent', b'sync-async-experiment/0.0.0')]
-        self.body = b''
+        self.body = None
 
 
 class Response(object):

@@ -59,6 +59,28 @@ def socket_send_loop(sock, byte_source, timeout=5):
             buffered_bytes = data_to_send[sent_bytes:]
 
 
+def _request_generator(request, data_handler):
+    """
+    Transforms a request into a generator of bytes. This allows the sending
+    loop to "pull" request bytes when it has room to send them.
+    """
+    # First, the request header.
+    yield data_handler.request_to_bytes(request)
+
+    # Then, for the body. The body can be bytes or an iterator, but that's it.
+    # The iterator is the more general case, so let's transform the bytes into
+    # an iterator via my friend the list.
+    if isinstance(request.body, bytes):
+        body = [request.body]
+    else:
+        body = request.body
+
+    for data_chunk in body:
+        yield data_handler.body_chunk_to_bytes(data_chunk)
+
+    yield data_handler.end_of_body()
+
+
 def run(request, data_handler, sock):
     """
     A synchronous request/response sender.
@@ -83,8 +105,8 @@ def run(request, data_handler, sock):
     - socket connection
     - connection pooling
     """
-    request_generator = data_handler.request_to_bytes(request)
-    sock_loop = socket_send_loop(sock, request_generator)
+    rgen = _request_generator(request, data_handler)
+    sock_loop = socket_send_loop(sock, rgen)
 
     for byte_chunk in sock_loop:
         response = data_handler.receive_bytes(byte_chunk)
