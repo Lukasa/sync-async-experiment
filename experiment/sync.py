@@ -23,6 +23,8 @@ generator. This generator is used essentially as a coroutine: each time
 4. socket closed (readable with empty read), in which case the generator will
    exit.
 """
+# TODO: Move to selectors module.
+# TODO: Remember to force sockets to nonblocking.
 import select
 
 
